@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Ваш API-ключ</h2>
+<p><code>{{ user.api_key }}</code></p>
+
+<a  class="btn btn-outline-info mt-3" href="{% url 'manage_telegram_chats' %}">Мои чаты и каналы</a>
+<a href="{% url 'my_posts' %}" class="btn btn-outline-info mt-3">Мои посты</a>
+
+{% endblock %}

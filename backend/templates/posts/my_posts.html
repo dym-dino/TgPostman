@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Мои отложенные посты</h2>
+
+<p><a href="{% url 'create_post' %}" class="btn btn-primary mt-3">Создать отложенный пост</a></p>
+
+{% if posts %}
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>Сообщение</th>
+        <th>HTML</th>
+        <th>Чаты</th>
+        <th>Статус</th>
+        <th>Время отправки</th>
+        <th>Ошибка</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for post in posts %}
+    <tr>
+        <td>{{ post.content|truncatechars:40 }}</td>
+        <td>{{ post.html|yesno:"✅,❌" }}</td>
+        <td>
+            {% for chat in post.targets.all %}
+            <span class="badge bg-secondary">{{ chat.title }}</span>
+            {% endfor %}
+        </td>
+        <td>
+            {% if post.status == 'pending' %}
+            <span class="badge bg-warning text-dark">Ожидает</span>
+            {% elif post.status == 'sent' %}
+            <span class="badge bg-success">Отправлено</span>
+            {% else %}
+            <span class="badge bg-danger">Ошибка</span>
+            {% endif %}
+        </td>
+        <td>{{ post.schedule_time|date:"Y-m-d H:i:s" }}</td>
+        <td>{{ post.error_message|default:"-" }}</td>
+        <td>
+            {% if post.status == 'pending' %}
+            <a href="{% url 'send_post_now' post.id %}" class="btn btn-info btn-sm">Отправить сейчас</a>
+            <a href="{% url 'cancel_post' post.id %}" class="btn btn-danger btn-sm">Отменить</a>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>У вас пока нет запланированных постов.</p>
+{% endif %}
+
+<a href="{% url 'dashboard' %}" class="btn btn-secondary mt-3">Назад</a>
+
+{% endblock %}

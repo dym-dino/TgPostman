@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<h2>Создать отложенный пост</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form|crispy }}
+
+    <button type="submit" class="btn btn-success mt-2">Запланировать пост</button>
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-2">Назад</a>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const scheduleOptionDelay = document.querySelector('[name="schedule_option"][value="delay"]');
+        const scheduleOptionTime = document.querySelector('[name="schedule_option"][value="time"]');
+        const delaySection = document.getElementById('div_id_delay_seconds');
+        const timeSection = document.getElementById('div_id_schedule_time');
+
+        function updateVisibility() {
+            if (scheduleOptionDelay.checked) {
+                delaySection.style.display = 'block';
+                timeSection.style.display = 'none';
+            } else if (scheduleOptionTime.checked) {
+                delaySection.style.display = 'none';
+                timeSection.style.display = 'block';
+            }
+        }
+
+        scheduleOptionDelay.addEventListener('change', updateVisibility);
+        scheduleOptionTime.addEventListener('change', updateVisibility);
+
+        updateVisibility();
+    });
+</script>
+
+
+{% endblock %}
