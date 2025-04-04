@@ -26,8 +26,7 @@ sent at a specific time or after a delay.
 
 - **Backend:** Django + Django REST Framework
 - **Queue:** Celery + RabbitMQ
-- **DB:** PostgreSQL (relational), MongoDB (optionally for logging)
-- **Async Messaging:** `python-telegram-bot==13.15` (synchronous version)
+- **DB:** PostgreSQL
 - **Docs:** drf-yasg (Swagger/OpenAPI)
 - **Deployment:** Docker + docker-compose
 
@@ -38,8 +37,8 @@ sent at a specific time or after a delay.
 ### 1. Clone the project
 
 ```bash
-git clone https://github.com/your-user/tgpostman.git
-cd tgpostman
+git clone https://github.com/dym-dino/TgPostman.git
+cd TgPostman
 ```
 
 ### 2. Set up environment variables
@@ -47,7 +46,6 @@ cd tgpostman
 Create a `.env` file inside the `backend/` directory:
 
 ```dotenv
-# Django
 # Django
 SECRET_KEY=supersecretkey
 
