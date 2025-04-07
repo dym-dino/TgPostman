@@ -1,0 +1,13 @@
+tests
+=====
+
+.. contents::
+   :local:
+   :depth: 2
+
+.. toctree::
+   :maxdepth: 1
+   :titlesonly:
+
+   test_users
+

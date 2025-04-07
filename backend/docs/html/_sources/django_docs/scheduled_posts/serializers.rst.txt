@@ -1,0 +1,8 @@
+serializers
+===========
+
+.. automodule:: scheduled_posts.serializers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

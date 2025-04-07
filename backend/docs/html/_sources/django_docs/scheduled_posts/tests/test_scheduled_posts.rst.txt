@@ -1,0 +1,8 @@
+test_scheduled_posts
+====================
+
+.. automodule:: scheduled_posts.tests.test_scheduled_posts
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

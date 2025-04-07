@@ -1,0 +1,8 @@
+urls
+====
+
+.. automodule:: telegram_accounts.urls
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

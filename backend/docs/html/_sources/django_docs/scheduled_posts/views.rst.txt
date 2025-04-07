@@ -1,0 +1,8 @@
+views
+=====
+
+.. automodule:: scheduled_posts.views
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

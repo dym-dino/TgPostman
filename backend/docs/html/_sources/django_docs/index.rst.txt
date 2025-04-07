@@ -1,0 +1,16 @@
+Django tgpostman
+================
+
+.. contents::
+   :local:
+   :depth: 2
+
+.. toctree::
+   :maxdepth: 1
+   :titlesonly:
+
+   scheduled_posts/index
+   telegram_accounts/index
+   tgpostman/index
+   users/index
+

@@ -1,0 +1,8 @@
+post_sender
+===========
+
+.. automodule:: scheduled_posts.post_sender
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

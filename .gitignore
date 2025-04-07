@@ -1,3 +1,4 @@
+generate_docs.py
 staticfiles/
 .env
 
@@ -97,7 +98,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+backend/docs/_build/
 
 # PyBuilder
 .pybuilder/

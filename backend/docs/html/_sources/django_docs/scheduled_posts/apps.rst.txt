@@ -1,0 +1,14 @@
+apps
+====
+
+.. automodule:: scheduled_posts.apps
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :exclude-members: ScheduledPostsConfig
+
+.. autoclass:: scheduled_posts.apps.ScheduledPostsConfig
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

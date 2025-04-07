@@ -39,30 +39,12 @@ sent at a specific time or after a delay.
 ```bash
 git clone https://github.com/dym-dino/TgPostman.git
 cd TgPostman
+cp .env.example .env
 ```
 
 ### 2. Set up environment variables
 
-Create a `.env` file inside the `backend/` directory:
-
-```dotenv
-# Django
-SECRET_KEY=supersecretkey
-
-# PostgreSQL
-POSTGRES_DB=tgpostman
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_HOST=db
-POSTGRES_PORT=5432
-
-# Celery
-CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
-CELERY_RESULT_BACKEND=mongodb://mongo:27017/tgpostman
-
-# Telegram
-TELEGRAM_BOT_TOKEN=7756731980:AAEhvAtSxG447mz-ggaJOiCW2Rn8YLX_E6A
-```
+Set up a `.env` 
 
 ### 3. Build and run all services
 
@@ -72,14 +54,15 @@ docker-compose up --build
 
 ### 4. Access the project
 
-| URL                               | Description                                |
-|-----------------------------------|--------------------------------------------|
-| `http://localhost:8000/`          | Web dashboard (user panel)                 |
-| `http://localhost:8000/login/`    | Login page                                 |
-| `http://localhost:8000/register/` | User registration                          |
-| `http://localhost:8000/swagger/`  | Swagger UI for API                         |
-| `http://localhost:8000/redoc/`    | ReDoc documentation                        |
-| `http://localhost:15672/`         | RabbitMQ Management UI (`guest` / `guest`) |
+| URL                                | Description                                |
+|------------------------------------|--------------------------------------------|
+| `http://localhost:8000/`           | Web dashboard (user panel)                 |
+| `http://localhost:8000/login/`     | Login page                                 |
+| `http://localhost:8000/register/`  | User registration                          |
+| `http://localhost:8000/swagger/`   | Swagger UI for API                         |
+| `http://localhost:8000/redoc/`     | ReDoc documentation                        |
+| `http://localhost:8000/code_docs/` | Sphinx documentation                        |
+| `http://localhost:15672/`          | RabbitMQ Management UI (`guest` / `guest`) |
 
 ---
 

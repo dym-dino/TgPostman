@@ -1,0 +1,8 @@
+settings
+========
+
+.. automodule:: tgpostman.settings
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

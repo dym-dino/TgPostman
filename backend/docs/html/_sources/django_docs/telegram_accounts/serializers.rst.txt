@@ -1,0 +1,8 @@
+serializers
+===========
+
+.. automodule:: telegram_accounts.serializers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

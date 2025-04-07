@@ -1,0 +1,8 @@
+tasks
+=====
+
+.. automodule:: scheduled_posts.tasks
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

@@ -1,0 +1,8 @@
+celery
+======
+
+.. automodule:: tgpostman.celery
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

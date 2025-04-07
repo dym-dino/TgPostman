@@ -1,0 +1,14 @@
+apps
+====
+
+.. automodule:: telegram_accounts.apps
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :exclude-members: TelegramAccountsConfig
+
+.. autoclass:: telegram_accounts.apps.TelegramAccountsConfig
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

@@ -1,0 +1,8 @@
+admin
+=====
+
+.. automodule:: telegram_accounts.admin
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

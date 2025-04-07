@@ -1,0 +1,8 @@
+test_telegram_accounts
+======================
+
+.. automodule:: telegram_accounts.tests.test_telegram_accounts
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

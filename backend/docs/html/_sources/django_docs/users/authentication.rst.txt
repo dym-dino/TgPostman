@@ -1,0 +1,8 @@
+authentication
+==============
+
+.. automodule:: users.authentication
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

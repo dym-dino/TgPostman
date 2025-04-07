@@ -1,0 +1,8 @@
+telegram_api
+============
+
+.. automodule:: telegram_accounts.telegram_api
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

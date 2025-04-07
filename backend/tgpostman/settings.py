@@ -26,10 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # --------------------------------------------------------------------------------
 # SECURITY SETTINGS
 
-SECRET_KEY = config('SECRET_KEY')
 DEBUG = False
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
+SECRET_KEY = config('SECRET_KEY')
+ADMIN_SWAGGER_LOGIN = config('ADMIN_SWAGGER_LOGIN')
+ADMIN_SWAGGER_PASSWORD = config('ADMIN_SWAGGER_PASSWORD')
 # --------------------------------------------------------------------------------
 # APPLICATION DEFINITION
 
