@@ -41,8 +41,12 @@ class PostTests(APITestCase):
     def test_create_post_with_delay(self, mock_async: patch) -> None:
         """
         Test creating a post with a delay. Verifies that Celery async task is triggered.
-        :param mock_async: Mock for Celery apply_async method
+
+        Args:
+            mock_async (patch): Mock for Celery apply_async method.
         """
+        mock_async.return_value.id = "test-task-id"
+
         data: dict = {
             "content": "Hello!",
             "html": True,
@@ -54,3 +58,4 @@ class PostTests(APITestCase):
 
         self.assertEqual(response.status_code, 201)
         self.assertTrue(mock_async.called)
+

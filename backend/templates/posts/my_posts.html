@@ -1,58 +1,235 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
+
 {% block content %}
+    <div class="container mt-4">
+        <h2>Мои отложенные посты</h2>
 
-<h2>Мои отложенные посты</h2>
+        <p>
+            <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createPostModal">
+                Создать отложенный пост
+            </button>
+        </p>
 
-<p><a href="{% url 'create_post' %}" class="btn btn-primary mt-3">Создать отложенный пост</a></p>
+        <form method="get" class="d-flex mb-3">
+            <input type="text" name="q" value="{{ q }}" placeholder="Поиск по содержанию..." class="form-control me-2">
+            <button type="submit" class="btn btn-outline-secondary">Поиск</button>
+        </form>
 
-{% if posts %}
-<table class="table table-bordered table-striped">
-    <thead>
-    <tr>
-        <th>Сообщение</th>
-        <th>HTML</th>
-        <th>Чаты</th>
-        <th>Статус</th>
-        <th>Время отправки</th>
-        <th>Ошибка</th>
-        <th>Действия</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for post in posts %}
-    <tr>
-        <td>{{ post.content|truncatechars:40 }}</td>
-        <td>{{ post.html|yesno:"✅,❌" }}</td>
-        <td>
-            {% for chat in post.targets.all %}
-            <span class="badge bg-secondary">{{ chat.title }}</span>
-            {% endfor %}
-        </td>
-        <td>
-            {% if post.status == 'pending' %}
-            <span class="badge bg-warning text-dark">Ожидает</span>
-            {% elif post.status == 'sent' %}
-            <span class="badge bg-success">Отправлено</span>
-            {% else %}
-            <span class="badge bg-danger">Ошибка</span>
+        {% if posts %}
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Сообщение</th>
+                        <th>Получатели</th>
+                        <th>Файлы</th>
+                        <th>Статус</th>
+                        <th>Время отправки</th>
+                        <th>Ошибка</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for post in posts %}
+                    <tr>
+                        <td style="max-width:300px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            {{ post.content|truncatechars:40 }}
+                            {% if post.content|length > 40 %}
+                                <br>
+                                <button type="button" class="btn btn-link btn-sm p-0 ms-2" data-bs-toggle="modal"
+                                        data-bs-target="#postModal{{ post.id }}" aria-label="Показать полный текст">▼</button>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% with recipients=post.recipients %}
+                            {% with total=recipients|length %}
+                            {% if total %}
+                                <span class="badge bg-secondary">{{ recipients.0 }}</span>
+                                {% if total > 1 %}
+                                    <button class="btn btn-link btn-sm p-0 ms-2" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#recCollapse{{ post.id }}" aria-expanded="false"
+                                            aria-controls="recCollapse{{ post.id }}">
+                                        и еще {{ total|add:"-1" }} <i class="bi bi-chevron-down"></i>
+                                    </button>
+                                    <div class="collapse mt-1" id="recCollapse{{ post.id }}">
+                                        {% for chat in recipients|slice:"1:" %}
+                                            <span class="badge bg-info">{{ chat }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                &mdash;
+                            {% endif %}
+                            {% endwith %}
+                            {% endwith %}
+                        </td>
+                        <td>
+                            {% with attachments=post.attachments.all %}
+                            {% if attachments|length %}
+                                <a href="{% url 'download_attachment' attachments.0.id %}" download>{{ attachments.0.original_name }}</a>
+                                {% if attachments|length > 1 %}
+                                    <button class="btn btn-link btn-sm p-0 ms-2" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#filesCollapse{{ post.id }}" aria-expanded="false"
+                                            aria-controls="filesCollapse{{ post.id }}">
+                                        и еще {{ attachments|length|add:"-1" }} <i class="bi bi-chevron-down"></i>
+                                    </button>
+                                    <div class="collapse mt-1" id="filesCollapse{{ post.id }}">
+                                        {% for att in attachments|slice:"1:" %}
+                                            <div><a href="{% url 'download_attachment' att.id %}" download>{{ att.original_name }}</a></div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                &mdash;
+                            {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td>
+                            {% if post.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">Ожидает</span>
+                            {% elif post.status == 'sent' %}
+                                <span class="badge bg-success">Отправлено</span>
+                            {% else %}
+                                <span class="badge bg-danger">Ошибка</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ post.schedule_time|date:"Y-m-d H:i:s" }}</td>
+                        <td>{{ post.error_message|default:"-" }}</td>
+                        <td>
+                            {% if post.status == 'pending' %}
+                                <a href="{% url 'send_post_now' post.id %}" class="btn btn-info btn-sm">Отправить сейчас</a>
+                                <a href="{% url 'cancel_post' post.id %}" class="btn btn-danger btn-sm">Отменить</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <div class="modal fade" id="postModal{{ post.id }}" tabindex="-1" aria-labelledby="postModalLabel{{ post.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="postModalLabel{{ post.id }}">Полное сообщение</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                                </div>
+                                <div class="modal-body">
+                                    {% if post.html %}
+                                        <div>{{ post.content|safe }}</div>
+                                    {% else %}
+                                        <p>{{ post.content }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            {% if posts.paginator.num_pages > 1 %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if posts.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?q={{ q }}&amp;page={{ posts.previous_page_number }}">Previous</a></li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                        {% endif %}
+                        {% for num in posts.paginator.page_range %}
+                            <li class="page-item {% if posts.number == num %}active{% endif %}"><a class="page-link" href="?q={{ q }}&amp;page={{ num }}">{{ num }}</a></li>
+                        {% endfor %}
+                        {% if posts.has_next %}
+                            <li class="page-item"><a class="page-link" href="?q={{ q }}&amp;page={{ posts.next_page_number }}">Next</a></li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">Next</span></li>
+                        {% endif %}
+                    </ul>
+                </nav>
             {% endif %}
-        </td>
-        <td>{{ post.schedule_time|date:"Y-m-d H:i:s" }}</td>
-        <td>{{ post.error_message|default:"-" }}</td>
-        <td>
-            {% if post.status == 'pending' %}
-            <a href="{% url 'send_post_now' post.id %}" class="btn btn-info btn-sm">Отправить сейчас</a>
-            <a href="{% url 'cancel_post' post.id %}" class="btn btn-danger btn-sm">Отменить</a>
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>У вас пока нет запланированных постов.</p>
-{% endif %}
+        {% else %}
+            <p>У вас пока нет запланированных постов.</p>
+        {% endif %}
 
-<a href="{% url 'dashboard' %}" class="btn btn-secondary mt-3">Назад</a>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-3">Назад</a>
+    </div>
 
+    <div class="modal fade" id="createPostModal" tabindex="-1" aria-labelledby="createPostModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="createPostModalLabel">Создать отложенный пост</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createPostForm" method="post" enctype="multipart/form-data" action="{% url 'create_post' %}">
+                        {% csrf_token %}
+
+                        {{ form.content|as_crispy_field }}
+                        {{ form.html|as_crispy_field }}
+                        {{ form.files|as_crispy_field }}
+                        <!-- Кнопка для отображения полей inline-кнопки ниже поля файлов -->
+                        <button type="button" id="addButtonToggle" class="btn btn-outline-primary mb-3">Добавить кнопку</button>
+                        {{ form.button_text|as_crispy_field }}
+                        {{ form.button_url|as_crispy_field }}
+
+                        {{ form.targets|as_crispy_field }}
+                        {{ form.groups|as_crispy_field }}
+                        {{ form.schedule_option|as_crispy_field }}
+                        {{ form.delay_seconds|as_crispy_field }}
+                        {{ form.schedule_time|as_crispy_field }}
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="submit" class="btn btn-success">Запланировать пост</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        $(function () {
+            function toggleSchedule() {
+                if ($('input[name="schedule_option"]:checked').val() === 'delay') {
+                    $('#div_id_delay_seconds').removeClass('d-none');
+                    $('#div_id_schedule_time').addClass('d-none');
+                } else {
+                    $('#div_id_delay_seconds').addClass('d-none');
+                    $('#div_id_schedule_time').removeClass('d-none');
+                }
+            }
+
+            function initButtonToggle() {
+                // Скрываем поля кнопки по умолчанию
+                $('#div_id_button_text, #div_id_button_url').addClass('d-none');
+                // Назначаем обработчик на кнопку
+                $('#addButtonToggle').off('click').on('click', function () {
+                    $('#div_id_button_text, #div_id_button_url').toggleClass('d-none');
+                });
+            }
+
+            toggleSchedule();
+            $('input[name="schedule_option"]').change(toggleSchedule);
+            initButtonToggle();
+
+            $('#createPostForm').on('submit', function (e) {
+                e.preventDefault();
+                var form = $(this);
+                $.ajax({
+                    url: form.attr('action'),
+                    type: form.attr('method'),
+                    data: new FormData(this),
+                    processData: false,
+                    contentType: false,
+                    success: function () { location.reload(); },
+                    error: function (xhr) {
+                        form.replaceWith($(xhr.responseText).find('#createPostForm'));
+                        $('.select2').select2({ placeholder: 'Выберите…', allowClear: true, width: '100%' });
+                        toggleSchedule();
+                        initButtonToggle();
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}

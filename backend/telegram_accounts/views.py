@@ -9,14 +9,15 @@ This file contains views for managing Telegram chats, including listing, adding,
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
-from django.shortcuts import render, redirect
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.decorators import method_decorator
 from django.views import View
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from tgpostman.settings import BOT_USERNAME
 from .forms import AddChatForm, TelegramChatForm
 from .models import TelegramChat
 from .serializers import TelegramChatSerializer
@@ -29,27 +30,54 @@ from .telegram_api import get_chat_info
 @method_decorator(login_required, name='dispatch')
 class TelegramChatListCreateView(View):
     """
-    View for listing and creating Telegram chats.
+    View for listing and creating Telegram chats with search & pagination.
     """
 
     def get(self, request):
         """
         Handle GET request to display the form and user's Telegram chats.
+        Supports optional search query and pagination.
         """
         form = TelegramChatForm(user=request.user)
-        chats = TelegramChat.objects.filter(user=request.user)
-        return render(request, 'telegram_accounts/manage.html', {'form': form, 'chats': chats})
+        q = request.GET.get('q', '')
+        chats_qs = TelegramChat.objects.filter(user=request.user)
+        if q:
+            chats_qs = chats_qs.filter(title__icontains=q)
+
+        # Pagination
+        page = request.GET.get('page', 1)
+        paginator = Paginator(chats_qs.order_by('title'), 10)  # 10 per page
+        try:
+            chats = paginator.page(page)
+        except PageNotAnInteger:
+            chats = paginator.page(1)
+        except EmptyPage:
+            chats = paginator.page(paginator.num_pages)
+
+        context = {
+            'form': form,
+            'chats': chats,
+            'q': q,
+            'bot_username': BOT_USERNAME,
+        }
+        return render(request, 'telegram_accounts/manage.html', context)
 
     def post(self, request):
         """
         Handle POST request to create a new Telegram chat.
+        After saving, redirect to first page (no query args).
         """
         form = TelegramChatForm(request.POST, user=request.user)
         if form.is_valid():
             form.save()
             return redirect('manage_telegram_chats')
-        chats = TelegramChat.objects.filter(user=request.user)
-        return render(request, 'telegram_accounts/manage.html', {'form': form, 'chats': chats})
+
+        # If form invalid, re-display page 1 of results without search
+        chats_qs = TelegramChat.objects.filter(user=request.user).order_by('title')
+        paginator = Paginator(chats_qs, 10)
+        chats = paginator.page(1)
+        return render(request, 'telegram_accounts/manage.html',
+                      {'form': form, 'chats': chats, 'q': '', 'bot_username': BOT_USERNAME, })
 
 
 @method_decorator(login_required, name='dispatch')
@@ -85,6 +113,7 @@ def add_chat_view(request):
                         "title": chat_info["title"],
                         "can_post": chat_info["can_post"],
                         "chat_type": chat_info["chat_type"],
+                        "url": chat_info["url"],
                     }
                 )
                 if created:
@@ -96,7 +125,7 @@ def add_chat_view(request):
                 messages.error(request, f"Ошибка: {e}")
     else:
         form = AddChatForm()
-    return render(request, "add_chat.html", {"form": form})
+    return render(request, "telegram_accounts/add_chat.html", {"form": form})
 
 
 class TelegramChatViewSet(viewsets.ModelViewSet):
@@ -123,7 +152,8 @@ class TelegramChatViewSet(viewsets.ModelViewSet):
             user=self.request.user,
             title=chat_info["title"],
             can_post=chat_info["can_post"],
-            chat_type=chat_info["chat_type"]
+            chat_type=chat_info["chat_type"],
+            url=chat_info["url"],
         )
 
     @action(detail=False, methods=['get'], url_path='my')

@@ -16,8 +16,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.urls import path, include, re_path
-from django.views.generic import RedirectView
+from django.urls import path, include
 from django.views.static import serve
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
@@ -121,16 +120,13 @@ urlpatterns = [
     # API modules
     path('api/users/', include('users.urls')),
     path('api/telegram/', include('telegram_accounts.urls')),
+    path('api/chat_groups', include('chat_groups.urls')),
     path('api/', include('scheduled_posts.urls')),
 
     # Swagger / Redoc (with basic auth)
     path('swagger/', protected_swagger_ui, name='schema-swagger-ui'),
     path('redoc/', protected_redoc_ui, name='schema-redoc'),
     path('swagger.json', protected_schema_json, name='schema-json'),
-
-    # Sphinx docs (with basic auth)
-    path('code_docs', RedirectView.as_view(url='/code_docs/index.html', permanent=False)),
-    re_path(r'^code_docs/(?P<path>.*)$', code_docs, name='code_docs'),
 ]
 
 if settings.DEBUG:

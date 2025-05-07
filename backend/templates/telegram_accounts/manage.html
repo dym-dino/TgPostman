@@ -1,13 +1,28 @@
+{# manage.html #}
 {% extends 'base.html' %}
-
 {% block content %}
 <div class="container mt-4">
     <h2>Your Telegram Chats & Channels</h2>
 
-    <form method="post" class="mb-4">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Add Chat/Channel</button>
+    {# Collapsible Add Form Toggle #}
+    <button class="btn btn-secondary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#addChatForm" aria-expanded="false" aria-controls="addChatForm">
+        Add Chat/Channel
+    </button>
+    <div class="collapse mb-4" id="addChatForm">
+        <div class="card card-body">
+            <p>Перед добавлением сделайте бота <a href="https://t.me/{{ bot_username }}"><b>@{{ bot_username }}</b></a> администратором</p>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+        </div>
+    </div>
+
+    {# Inline Search Form #}
+    <form method="get" class="d-flex mb-3">
+        <input type="text" name="q" value="{{ q }}" placeholder="Search by title..." class="form-control me-2">
+        <button type="submit" class="btn btn-outline-secondary">Search</button>
     </form>
 
     {% if chats %}
@@ -16,6 +31,7 @@
         <tr>
             <th>ID</th>
             <th>Title</th>
+            <th>Url</th>
             <th>Type</th>
             <th>Actions</th>
         </tr>
@@ -25,6 +41,13 @@
         <tr>
             <td>{{ chat.chat_id }}</td>
             <td>{{ chat.title }}</td>
+            <td>
+                {% if chat.url %}
+                  <a href="{{ chat.url }}" target="_blank">{{ chat.url }}</a>
+                {% else %}
+                  —
+                {% endif %}
+            </td>
             <td>{{ chat.chat_type }}</td>
             <td>
                 <form method="post" action="{% url 'delete_telegram_chat' chat.pk %}" onsubmit="return confirm('Are you sure you want to delete this chat/channel?');">
@@ -36,10 +59,40 @@
         {% endfor %}
         </tbody>
     </table>
+
+    {# Pagination controls (only if more than one page) #}
+    {% if chats.paginator.num_pages > 1 %}
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center">
+        {% if chats.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?q={{ q }}&amp;page={{ chats.previous_page_number }}">Previous</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Previous</span></li>
+        {% endif %}
+
+        {% for num in chats.paginator.page_range %}
+          {% if chats.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+          {% else %}
+            <li class="page-item"><a class="page-link" href="?q={{ q }}&amp;page={{ num }}">{{ num }}</a></li>
+          {% endif %}
+        {% endfor %}
+
+        {% if chats.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?q={{ q }}&amp;page={{ chats.next_page_number }}">Next</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Next</span></li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
     {% else %}
-    <p>No chats or channels added yet.</p>
+    <p>No chats or channels found.</p>
     {% endif %}
 </div>
 <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-3">Назад</a>
-
 {% endblock %}

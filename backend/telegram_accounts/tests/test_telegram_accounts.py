@@ -36,6 +36,7 @@ class TelegramChatTests(APITestCase):
             "title": "Test Group",
             "can_post": True,
             "chat_type": "channel",
+            "url":None
         }
         data = {"chat_id": -100123456789}
         url = reverse("telegramchat-list")

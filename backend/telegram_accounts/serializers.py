@@ -23,7 +23,7 @@ class TelegramChatSerializer(serializers.ModelSerializer):
     class Meta:
         model = TelegramChat
         fields = "__all__"
-        read_only_fields = ("user", "title", "can_post", "chat_type")
+        read_only_fields = ("user", "title", "can_post", "chat_type", "url")
 
     def create(self, validated_data: dict) -> TelegramChat:
         """

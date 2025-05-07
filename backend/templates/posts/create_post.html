@@ -2,38 +2,67 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<h2>Создать отложенный пост</h2>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form|crispy }}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">Создать отложенный пост</h3>
+        </div>
+        <div class="card-body">
+          <form id="createPostForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
 
-    <button type="submit" class="btn btn-success mt-2">Запланировать пост</button>
-    <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-2">Назад</a>
-</form>
+            {{ form.content|as_crispy_field }}
+            {{ form.html|as_crispy_field }}
+            {{ form.files|as_crispy_field }}
+            <!-- Кнопка для отображения полей inline-кнопки под полем файлов -->
+            <button type="button" id="addButtonToggle" class="btn btn-outline-primary mb-3">Добавить кнопку</button>
+            {{ form.button_text|as_crispy_field }}
+            {{ form.button_url|as_crispy_field }}
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const scheduleOptionDelay = document.querySelector('[name="schedule_option"][value="delay"]');
-        const scheduleOptionTime = document.querySelector('[name="schedule_option"][value="time"]');
-        const delaySection = document.getElementById('div_id_delay_seconds');
-        const timeSection = document.getElementById('div_id_schedule_time');
+            {{ form.targets|as_crispy_field }}
+            {{ form.groups|as_crispy_field }}
+            {{ form.schedule_option|as_crispy_field }}
+            {{ form.delay_seconds|as_crispy_field }}
+            {{ form.schedule_time|as_crispy_field }}
 
-        function updateVisibility() {
-            if (scheduleOptionDelay.checked) {
-                delaySection.style.display = 'block';
-                timeSection.style.display = 'none';
-            } else if (scheduleOptionTime.checked) {
-                delaySection.style.display = 'none';
-                timeSection.style.display = 'block';
-            }
+            <div class="d-flex justify-content-between mt-4">
+              <button type="submit" class="btn btn-success">Запланировать пост</button>
+              <a href="{% url 'dashboard' %}" class="btn btn-secondary">Назад</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    $(function() {
+      // Переключение Delay / Time
+      function toggleSchedule() {
+        if ($('input[name="schedule_option"]:checked').val() === 'delay') {
+          $('#div_id_delay_seconds').removeClass('d-none');
+          $('#div_id_schedule_time').addClass('d-none');
+        } else {
+          $('#div_id_delay_seconds').addClass('d-none');
+          $('#div_id_schedule_time').removeClass('d-none');
         }
+      }
+      toggleSchedule();
+      $('input[name="schedule_option"]').change(toggleSchedule);
 
-        scheduleOptionDelay.addEventListener('change', updateVisibility);
-        scheduleOptionTime.addEventListener('change', updateVisibility);
-
-        updateVisibility();
+      // Инициализация кнопки добавления inline-кнопки
+      function initButtonToggle() {
+        $('#div_id_button_text, #div_id_button_url').addClass('d-none');
+        $('#addButtonToggle').off('click').on('click', function () {
+          $('#div_id_button_text, #div_id_button_url').toggleClass('d-none');
+        });
+      }
+      initButtonToggle();
     });
-</script>
-
-
+  </script>
 {% endblock %}

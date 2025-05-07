@@ -33,6 +33,7 @@ def get_chat_info(chat_id: int) -> dict:
             "title": chat.title or chat.username,
             "can_post": chat.type in ("group", "supergroup", "channel"),
             "chat_type": chat.type,
+            "url": f'https://t.me/{chat.username}' if chat.username else getattr(chat, 'invite_link', None),
         }
     except Exception as e:
         raise ValueError(f"Telegram error: {e}")

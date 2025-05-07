@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Ваш API-ключ</h2>
-<p><code>{{ user.api_key }}</code></p>
+    <h2>Ваш API-ключ</h2>
+    <p><code>TG POSTMAN — это платформа для отложенной и массовой публикации контента в Telegram-чаты и каналы с поддержкой перевода, кнопок и медиа.</code></p>
 
-<a  class="btn btn-outline-info mt-3" href="{% url 'manage_telegram_chats' %}">Мои чаты и каналы</a>
-<a href="{% url 'my_posts' %}" class="btn btn-outline-info mt-3">Мои посты</a>
+    <a class="btn btn-outline-info mt-3" href="{% url 'manage_telegram_chats' %}">Мои чаты и каналы</a>
+    <a href="{% url 'chat_groups:group_list' %}" class="btn btn-outline-info mt-3">Мои группы</a>
+    <a href="{% url 'my_posts' %}" class="btn btn-outline-info mt-3">Мои посты</a>
 
 {% endblock %}
